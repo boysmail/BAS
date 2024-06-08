@@ -1,0 +1,201 @@
+{% extends "main.html" %}
+{% block content %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='test.css') }}">
+    <div class="container" style="margin-top: 20px;">
+        <div class="row justify-content-center">
+            <div class=""> <!-- Adjust the number as needed -->
+                <div class="d-flex align-items-center"> <!-- This is the flex container -->
+                    <h2 class="mr-5">Create Attack</h2> <!-- mr-3 adds a margin to the right -->
+                    <button id="refreshBtn" class="btn btn-secondary ml-5">Refresh Attacks</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#licensesModal">Show Licenses
+                    </button>
+                </div>
+
+                <div class="container" style="margin-top: 20px;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group row">
+                                <label for="attackName" class="col-sm-2 col-form-label">Attack Name</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="attackName"
+                                           placeholder="Enter attack name" style="width: 300px;">
+                                </div>
+                            </div>
+                            <select class="element-select" style="width: 1000px; margin-top: 50px;">
+
+                            </select>
+                            <button class="btn btn-primary" id="addBtn">Add</button>
+                            <table class="table" id="elementTable">
+                                <thead>
+                                <tr>
+                                    <th>Element</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- Rows will be added here dynamically -->
+                                </tbody>
+                            </table>
+                            <button id="submitBtn" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.element-select').select2();
+            {#fetch('/get_attacks')  // Replace '/get_elements' with the actual endpoint#}
+            {#    .then(response => response.json())#}
+            {#    .then(data => {#}
+            {#        // Create and add the options#}
+            {#        for (let element of data) {#}
+            {#            let newOption = new Option(element.name, element.value, false, false);#}
+            {#            $('.element-select').append(newOption).trigger('change');#}
+            {#        }#}
+            {#    });#}
+
+            fetch('/get_attacks')
+                .then(response => response.json())
+                .then(data => {
+                    // Create a map to store the optgroups
+                    let optgroups = {};
+
+                    for (let attack of data) {
+                        // If the optgroup doesn't exist, create it
+                        if (!optgroups[attack.group]) {
+                            let newOptgroup = document.createElement('optgroup');
+                            newOptgroup.label = attack.group;
+                            $('.element-select').append(newOptgroup);
+                            optgroups[attack.group] = newOptgroup;
+                        }
+
+                        // Add the option to the optgroup
+                        let newOption = new Option(attack.name, attack.id, false, false);
+                        $(optgroups[attack.group]).append(newOption);
+                    }
+
+                    // Update Select2
+                    $('.element-select').trigger('change');
+                });
+
+
+            $('#addBtn').click(function () {
+                var selectedElement = $('.element-select option:selected').text();
+                var selectedValue = $('.element-select').val(); // Get the value of the selected option
+                var newRow = `<tr><td data-value="${selectedValue}">${selectedElement}</td><td><button class="btn btn-danger removeBtn">Remove</button></td></tr>`;
+                $('#elementTable tbody').append(newRow);
+            });
+
+            $(document).on('click', '.removeBtn', function () {
+                $(this).closest('tr').remove();
+            });
+
+            $('#elementTable tbody').sortable({
+                items: "> tr",
+                appendTo: "parent",
+                helper: "clone"
+            }).disableSelection();
+
+        });
+        $('#submitBtn').click(function () {
+            var tableData = [];
+            $('#elementTable tbody tr').each(function () {
+                var row = $(this);
+                var rowData = row.find('td:first').data("value");
+                tableData.push(rowData);
+            });
+
+            var attackName = $('#attackName').val(); // Get the attack name
+
+            var data = {
+                attackName: attackName,
+                tableData: tableData
+            };
+
+            $.ajax({
+                url: '/new_attack',  // Replace with your endpoint
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    console.log(response);
+                    window.location.href = '/attacks';
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+        $('#refreshBtn').click(function () {
+            // Send a GET request to /refresh_attacks
+            fetch('/refresh_attacks')
+
+
+        });
+
+    </script>
+    <div class="modal fade" id="licensesModal" tabindex="-1" aria-labelledby="licensesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" style="max-width: 40%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="licensesModalLabel">Licenses</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5>Atomic Red Team</h5>
+                    <pre>
+The MIT License<br>
+Copyright (c) 2018 Red Canary, Inc.<br>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:<br>
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.<br>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+                    </pre>
+                    <h5>Uber Metta</h5>
+                    <pre>
+MIT License<br>
+Copyright (c) 2017 Uber Technologies, Inc.<br>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:<br>
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.<br>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+                    </pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

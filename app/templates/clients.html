@@ -1,0 +1,81 @@
+{% extends "main.html" %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<div class="container" style="margin-top: 20px;">
+    <div class="row">
+        <div class="col-md-12">
+            <button class="btn btn-primary float-end" onclick="location.href='/new_client'">New Agent</button>
+            <button class="btn btn-secondary float-end me-2" onclick="toggleView()">Switch View</button>
+        </div>
+    </div>
+    <div id="gridView" class="row">
+        {% for client in clients %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-desktop fa-3x"></i>
+                        <h5 class="card-title">{{ client.hostname }}</h5>
+                        <p class="card-text">
+                            ID: {{ client.id }}<br>
+                            IP: {{ client.ip }}<br>
+                            Connect date: {{ client.date.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                            Last seen: {{ client.heartbeat.strftime('%Y-%m-%d %H:%M:%S')}}
+                        </p>
+                        <form action="/delete_client/{{ client.id }}" method="POST">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div id="tableView" style="display: none;">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Hostname</th>
+                <th>IP</th>
+                <th>Connect date</th>
+                <th>Last seen</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for client in clients %}
+                <tr>
+                    <td>{{ client.id }}</td>
+                    <td>{{ client.hostname }}</td>
+                    <td>{{ client.ip }}</td>
+                    <td>{{ client.date }}</td>
+                    <td>{{ client.heartbeat.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                    <td>
+                        <form action="/delete_client/{{ client.id }}" method="POST">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    var gridView = true;
+
+    function toggleView() {
+        var gridViewElement = document.getElementById('gridView');
+        var tableViewElement = document.getElementById('tableView');
+
+        if (gridView) {
+            gridViewElement.style.display = 'none';
+            tableViewElement.style.display = 'block';
+            gridView = false;
+        } else {
+            gridViewElement.style.display = 'flex';
+            tableViewElement.style.display = 'none';
+            gridView = true;
+        }
+    }
+</script>
+{% endblock %}

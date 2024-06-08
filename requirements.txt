@@ -1,0 +1,7 @@
+Flask
+Flask-Login
+Flask-SQLAlchemy
+Flask-JWT-Extended
+pyinstaller
+PyYAML
+gunicorn

@@ -1,0 +1,47 @@
+{% extends "main.html" %}
+{% block content %}
+    <div class="container" style="margin-top: 20px;">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-primary float-end" onclick="location.href='/new_run'">New Run</button>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Status</th>
+                        <th>Attack Name</th>
+                        <th>Clients</th>
+                        <th>Date</th>
+                        <th>View</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for run in runs %}
+                        <tr>
+                            <td>{{ run.id }}</td>
+                            <td>{{ run.status }}</td>
+                            <td>{{ run.attack.name }}</td>
+                            <td>
+                                {% for client in run.clients %}
+                                    {{ client.hostname }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>{{ run.created_date }}</td>
+                            <td>
+                                <button type="submit" class="btn btn-info" onclick="location.href='/view_run/{{ run.id }}'">View</button>
+                            </td>
+                            <td>
+                                <form action="/delete_run/{{ run.id }}" method="POST">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

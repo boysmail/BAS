@@ -1,0 +1,140 @@
+{% extends "main.html" %}
+{% block content %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <div class="container" style="margin-top: 20px;">
+        <h2>Dashboard</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Number of Clients</h5>
+                        <p class="card-text large-number">{{ num_clients }}</p>
+                        {% if num_clients > 0 %}
+                            <h5 class="card-title">Tasks per Client</h5>
+                            <canvas id="tasksPerClientChart"></canvas>
+                            <script>
+                                var ctx = document.getElementById('tasksPerClientChart').getContext('2d');
+                                var myPieChart = new Chart(ctx, {
+                                    type: 'pie',
+                                    data: {
+                                        labels: {{ tasks_per_client.keys() | list | tojson }},
+                                        datasets: [{
+                                            data: {{ tasks_per_client.values() | list | tojson }},
+                                            backgroundColor: [
+                                                'rgba(255, 99, 132, 0.2)',
+                                                'rgba(54, 162, 235, 0.2)',
+                                                'rgba(255, 206, 86, 0.2)',
+                                                'rgba(75, 192, 192, 0.2)',
+                                                'rgba(153, 102, 255, 0.2)',
+                                                'rgba(255, 159, 64, 0.2)'
+                                            ],
+                                            borderColor: [
+                                                'rgba(255, 99, 132, 1)',
+                                                'rgba(54, 162, 235, 1)',
+                                                'rgba(255, 206, 86, 1)',
+                                                'rgba(75, 192, 192, 1)',
+                                                'rgba(153, 102, 255, 1)',
+                                                'rgba(255, 159, 64, 1)'
+                                            ],
+                                            borderWidth: 1
+                                        }]
+                                    }
+                                });
+                            </script>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Number of Attacks</h5>
+                        <p class="card-text large-number">{{ num_attacks }}</p>
+                        {% if num_attacks > 0 %}
+                            <h5 class="card-title">Steps per Attack</h5>
+                            <canvas id="stepsPerAttackChart"></canvas>
+                            <script>
+                                var ctx = document.getElementById('stepsPerAttackChart').getContext('2d');
+                                var myChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: {{ steps_per_attack.keys() | list | tojson }},
+                                        datasets: [{
+                                            label: '# of Steps',
+                                            data: {{ steps_per_attack.values() | list | tojson }},
+                                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                            borderColor: 'rgba(153, 102, 255, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    stepSize: 1
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            </script>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Number of Runs</h5>
+                        <p class="card-text large-number">{{ num_runs }}</p>
+                        {% if num_runs > 0 %}
+                            <h5 class="card-title">Number of runs per day</h5>
+                            <canvas id="runsPerDayChart"></canvas>
+                            <script>
+                                var ctx = document.getElementById('runsPerDayChart').getContext('2d');
+                                var myChart = new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: {{ runs_per_day.keys() | list | tojson }},
+                                        datasets: [{
+                                            label: '# of Runs',
+                                            data: {{ runs_per_day.values() | list | tojson }},
+                                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        scales: {
+                                            x: {
+                                                type: 'time',
+                                                time: {
+                                                    unit: 'day'
+                                                }
+                                            },
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    stepSize: 1
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            </script>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .large-number {
+            font-size: 48px;
+        }
+    </style>
+
+{% endblock %}

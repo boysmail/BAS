@@ -1,0 +1,52 @@
+{% extends "main.html" %}
+{% block content %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-danger">
+                {% for message in messages %}
+                    {{ message }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div class="container" style="margin-top: 20px;">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-primary float-end" onclick="location.href='/new_attack'">New Attack</button>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Steps</th>
+                        <th>Date</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for attack in attacks %}
+                        <tr>
+                            <td>{{ attack.id }}</td>
+                            <td>{{ attack.name }}</td>
+                            <td>{{ attack.steps }}</td>
+                            <td>{{ attack.created_date }}</td>
+                            <td>
+                                <form action="/edit_attack/{{ attack.id }}" method="POST">
+                                    <button type="submit" class="btn btn-warning">Edit</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form action="/delete_attack/{{ attack.id }}" method="POST">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

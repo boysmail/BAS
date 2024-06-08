@@ -1,0 +1,18 @@
+[project]
+name = "BAS"
+version = "1.0.0"
+authors = [
+    {name = "Dmitry Zhirov"},
+]
+description = "Open Source Breach and Attack simulation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "Flask",
+    "Flask-Login",
+    "Flask-SQLAlchemy",
+    "Flask-JWT-Extended",
+    "pyinstaller",
+    "pyyaml",
+    "gunicorn"
+]
